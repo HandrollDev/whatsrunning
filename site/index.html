@@ -1,0 +1,448 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>WhatsRunning — Task Manager, in plain English</title>
+<meta name="description" content="A Windows process inspector that tells you what every process on your PC is and whether it should be there. Plain language, no background scanning.">
+<link rel="icon" type="image/png" href="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'><path d='M32 4 L60 14 L60 36 C60 53 47 60 32 62 C17 60 4 53 4 36 L4 14 Z' fill='%232f81f7'/><path d='M20 33 L29 42 L46 25' stroke='white' stroke-width='6' fill='none' stroke-linecap='round' stroke-linejoin='round'/></svg>">
+<style>
+  /* ---- design tokens (mirrors the app) ---- */
+  :root {
+    --bg: #0d1117;
+    --surface: #161b22;
+    --surface-hi: #1c232c;
+    --border: #30363d;
+    --border-hi: #3d444d;
+    --text: #e6edf3;
+    --text-dim: #7d8590;
+    --text-faint: #484f58;
+    --accent: #2f81f7;
+    --accent-hover: #388bfd;
+    --green: #3fb950;
+    --blue: #58a6ff;
+    --amber: #d29922;
+    --orange: #f0883e;
+    --red: #f85149;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: "Segoe UI Variable Display", "Segoe UI", -apple-system, BlinkMacSystemFont, "Inter", system-ui, sans-serif;
+    font-size: 16px;
+    line-height: 1.55;
+    -webkit-font-smoothing: antialiased;
+  }
+  a { color: var(--accent); text-decoration: none; }
+  a:hover { color: var(--accent-hover); text-decoration: underline; }
+
+  /* ---- layout helpers ---- */
+  .wrap { max-width: 1100px; margin: 0 auto; padding: 0 24px; }
+  section { padding: 80px 0; }
+  h1, h2, h3 { line-height: 1.2; letter-spacing: -0.02em; margin: 0; }
+  h1 { font-size: 52px; font-weight: 700; }
+  h2 { font-size: 32px; font-weight: 700; margin-bottom: 14px; }
+  h3 { font-size: 18px; font-weight: 600; margin-bottom: 6px; }
+  p  { margin: 0 0 14px; color: var(--text); }
+  .dim { color: var(--text-dim); }
+
+  /* ---- nav ---- */
+  nav {
+    position: sticky; top: 0; z-index: 10;
+    background: rgba(13, 17, 23, 0.85);
+    backdrop-filter: saturate(180%) blur(12px);
+    border-bottom: 1px solid var(--border);
+  }
+  nav .wrap {
+    display: flex; align-items: center; justify-content: space-between;
+    height: 60px;
+  }
+  .brand { display: flex; align-items: center; gap: 10px; font-weight: 600; font-size: 17px; }
+  .brand-logo { width: 28px; height: 28px; }
+  .nav-links { display: flex; gap: 24px; align-items: center; }
+  .nav-links a { color: var(--text-dim); font-size: 14px; font-weight: 500; }
+  .nav-links a:hover { color: var(--text); text-decoration: none; }
+
+  /* ---- buttons ---- */
+  .btn {
+    display: inline-flex; align-items: center; gap: 8px;
+    background: var(--accent); color: white;
+    padding: 12px 20px; border-radius: 8px;
+    font-weight: 600; font-size: 15px;
+    border: 0; cursor: pointer;
+    transition: background 0.15s ease;
+    text-decoration: none;
+  }
+  .btn:hover { background: var(--accent-hover); color: white; text-decoration: none; }
+  .btn-secondary {
+    background: var(--surface); color: var(--text);
+    border: 1px solid var(--border);
+  }
+  .btn-secondary:hover { background: var(--surface-hi); border-color: var(--border-hi); color: var(--text); }
+  .btn-large { padding: 16px 28px; font-size: 16px; }
+
+  /* ---- hero ---- */
+  .hero { padding-top: 100px; padding-bottom: 80px; }
+  .hero-grid { display: grid; grid-template-columns: 1.05fr 1fr; gap: 60px; align-items: center; }
+  .hero h1 { margin-bottom: 18px; }
+  .hero .tagline { font-size: 20px; color: var(--text-dim); margin-bottom: 28px; max-width: 520px; }
+  .hero-cta { display: flex; gap: 12px; flex-wrap: wrap; }
+  .hero-meta { color: var(--text-faint); font-size: 13px; margin-top: 18px; }
+
+  /* ---- mock app window (CSS art instead of a real screenshot) ---- */
+  .mock {
+    background: var(--surface); border: 1px solid var(--border); border-radius: 10px;
+    overflow: hidden;
+    box-shadow:
+      0 25px 60px rgba(0,0,0,0.45),
+      0 8px 18px rgba(0,0,0,0.35);
+    font-size: 12px;
+  }
+  .mock-titlebar {
+    background: var(--bg); height: 30px; display: flex; align-items: center;
+    padding: 0 10px; gap: 6px; border-bottom: 1px solid var(--border);
+  }
+  .mock-dot { width: 11px; height: 11px; border-radius: 50%; background: var(--border); }
+  .mock-title { color: var(--text-dim); font-size: 11px; margin-left: 6px; }
+  .mock-header {
+    display: flex; align-items: center; gap: 10px;
+    padding: 12px 14px; border-bottom: 1px solid var(--border);
+  }
+  .mock-header .logo { width: 22px; height: 22px; }
+  .mock-app-name { font-weight: 600; font-size: 13px; }
+  .mock-app-sub { color: var(--text-dim); font-size: 10px; }
+
+  .mock-stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; padding: 12px 14px; }
+  .mock-card {
+    background: var(--surface-hi); border: 1px solid var(--border); border-radius: 6px;
+    padding: 8px 10px;
+  }
+  .mock-card .k { color: var(--text-dim); font-size: 9px; text-transform: uppercase; letter-spacing: 0.5px; }
+  .mock-card .v { font-size: 18px; font-weight: 600; margin-top: 2px; }
+  .v-green { color: var(--green); }
+  .v-blue { color: var(--blue); }
+  .v-grey { color: var(--text-dim); }
+  .v-orange { color: var(--orange); }
+
+  .mock-bar { display: flex; gap: 8px; padding: 0 14px 12px; }
+  .mock-bar .scan { background: var(--accent); color: white; padding: 7px 14px; border-radius: 5px; font-weight: 600; font-size: 11px; }
+  .mock-bar .filter { background: var(--surface-hi); border: 1px solid var(--border); padding: 7px 12px; border-radius: 5px; color: var(--text-dim); font-size: 11px; flex: 1; }
+
+  .mock-row {
+    display: grid; grid-template-columns: 1.5fr 0.4fr 0.5fr 0.7fr 0.9fr 1fr;
+    gap: 10px;
+    padding: 8px 14px; border-top: 1px solid var(--border);
+    align-items: center;
+  }
+  .mock-row .name { font-weight: 500; }
+  .mock-row .num  { color: var(--text-dim); font-variant-numeric: tabular-nums; }
+  .badge { display: inline-flex; align-items: center; gap: 5px; font-size: 10px; font-weight: 600; }
+  .dot { width: 7px; height: 7px; border-radius: 50%; display: inline-block; }
+  .dot-green { background: var(--green); }
+  .dot-blue { background: var(--blue); }
+  .dot-orange { background: var(--orange); }
+  .dot-red { background: var(--red); }
+  .badge-green { color: var(--green); }
+  .badge-blue { color: var(--blue); }
+  .badge-orange { color: var(--orange); }
+  .badge-red { color: var(--red); }
+  .badge-grey { color: var(--text-dim); }
+
+  /* ---- feature cards ---- */
+  .features { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+  .feature {
+    background: var(--surface); border: 1px solid var(--border); border-radius: 12px;
+    padding: 26px;
+  }
+  .feature-icon {
+    width: 40px; height: 40px; border-radius: 8px;
+    background: rgba(47, 129, 247, 0.12);
+    color: var(--accent);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 20px; margin-bottom: 14px;
+  }
+  .feature p { color: var(--text-dim); }
+
+  /* ---- compare section ---- */
+  .compare {
+    background: var(--surface); border: 1px solid var(--border); border-radius: 12px;
+    padding: 32px;
+  }
+  .compare-row {
+    display: grid; grid-template-columns: 1fr 2fr;
+    gap: 20px; padding: 16px 0;
+    border-bottom: 1px solid var(--border);
+  }
+  .compare-row:last-child { border-bottom: 0; }
+  .compare-row h3 { margin: 0; color: var(--text); }
+  .compare-row .verdict { color: var(--text-dim); margin: 0; }
+
+  /* ---- faq ---- */
+  .faq details {
+    background: var(--surface); border: 1px solid var(--border); border-radius: 8px;
+    padding: 16px 20px; margin-bottom: 10px;
+  }
+  .faq summary {
+    cursor: pointer; font-weight: 600; font-size: 15px;
+    list-style: none; outline: none;
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .faq summary::after { content: "+"; color: var(--text-dim); font-weight: 400; font-size: 22px; line-height: 0.5; }
+  .faq details[open] summary::after { content: "−"; }
+  .faq details p { color: var(--text-dim); margin: 12px 0 0; }
+
+  /* ---- closing cta ---- */
+  .final {
+    background: linear-gradient(180deg, transparent, rgba(47, 129, 247, 0.06));
+    text-align: center;
+  }
+  .final h2 { margin-bottom: 12px; }
+  .final p  { color: var(--text-dim); max-width: 540px; margin: 0 auto 28px; }
+
+  /* ---- footer ---- */
+  footer {
+    border-top: 1px solid var(--border);
+    padding: 36px 0;
+    color: var(--text-faint); font-size: 13px;
+    display: flex; align-items: center; justify-content: space-between;
+    flex-wrap: wrap; gap: 16px;
+  }
+  footer .donate { color: var(--text-dim); }
+
+  /* ---- responsive ---- */
+  @media (max-width: 880px) {
+    h1 { font-size: 38px; }
+    h2 { font-size: 26px; }
+    .hero-grid { grid-template-columns: 1fr; gap: 40px; }
+    .features { grid-template-columns: 1fr; }
+    .compare-row { grid-template-columns: 1fr; gap: 6px; }
+    .nav-links { gap: 14px; }
+    .nav-links .hide-sm { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ---------- nav ---------- -->
+<nav>
+  <div class="wrap">
+    <div class="brand">
+      <svg class="brand-logo" viewBox="0 0 64 64">
+        <path d="M32 4 L60 14 L60 36 C60 53 47 60 32 62 C17 60 4 53 4 36 L4 14 Z" fill="#2f81f7"/>
+        <path d="M20 33 L29 42 L46 25" stroke="white" stroke-width="6" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+      WhatsRunning
+    </div>
+    <div class="nav-links">
+      <a href="#features" class="hide-sm">Features</a>
+      <a href="#compare" class="hide-sm">How it differs</a>
+      <a href="#faq" class="hide-sm">FAQ</a>
+      <a href="#download" class="btn btn-secondary" style="padding: 7px 14px; font-size: 13px;">Download</a>
+    </div>
+  </div>
+</nav>
+
+<!-- ---------- hero ---------- -->
+<section class="hero">
+  <div class="wrap hero-grid">
+    <div>
+      <h1>Task Manager,<br>in plain English.</h1>
+      <p class="tagline">
+        See every process running on your Windows PC and find out exactly what each one is,
+        who made it, and whether it should be there. No jargon, no background scanning, no nonsense.
+      </p>
+      <div class="hero-cta">
+        <a href="#download" class="btn btn-large">⬇ Download for Windows</a>
+        <a href="#features" class="btn btn-secondary btn-large">See how it works</a>
+      </div>
+      <div class="hero-meta">Free • Windows 10/11 • No installation phone-home • No background processes</div>
+    </div>
+
+    <!-- CSS-art mockup standing in for a screenshot -->
+    <div class="mock">
+      <div class="mock-titlebar">
+        <div class="mock-dot" style="background:#f85149"></div>
+        <div class="mock-dot" style="background:#d29922"></div>
+        <div class="mock-dot" style="background:#3fb950"></div>
+        <span class="mock-title">WhatsRunning — Windows Process Inspector</span>
+      </div>
+      <div class="mock-header">
+        <svg class="logo" viewBox="0 0 64 64">
+          <path d="M32 4 L60 14 L60 36 C60 53 47 60 32 62 C17 60 4 53 4 36 L4 14 Z" fill="#2f81f7"/>
+          <path d="M20 33 L29 42 L46 25" stroke="white" stroke-width="6" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        <div>
+          <div class="mock-app-name">WhatsRunning</div>
+          <div class="mock-app-sub">Windows Process Inspector</div>
+        </div>
+      </div>
+      <div class="mock-stats">
+        <div class="mock-card"><div class="k">Total</div><div class="v">274</div></div>
+        <div class="mock-card"><div class="k">Trusted</div><div class="v v-green">165</div></div>
+        <div class="mock-card"><div class="k">Unknown</div><div class="v v-grey">12</div></div>
+        <div class="mock-card"><div class="k">Suspicious</div><div class="v v-orange">3</div></div>
+      </div>
+      <div class="mock-bar">
+        <span class="scan">⟳ Scan Now</span>
+        <span class="filter">All processes</span>
+      </div>
+      <div class="mock-row">
+        <span class="name">chrome.exe</span>
+        <span class="num">8344</span>
+        <span class="num">1.4%</span>
+        <span class="num">312 MB</span>
+        <span class="badge badge-orange">Browser</span>
+        <span class="badge badge-green"><span class="dot dot-green"></span> Trusted</span>
+      </div>
+      <div class="mock-row">
+        <span class="name">svchost.exe</span>
+        <span class="num">1812</span>
+        <span class="num">0.1%</span>
+        <span class="num">14 MB</span>
+        <span class="badge badge-blue">Windows Core</span>
+        <span class="badge badge-green"><span class="dot dot-green"></span> Trusted</span>
+      </div>
+      <div class="mock-row">
+        <span class="name">unknown_helper.exe</span>
+        <span class="num">17260</span>
+        <span class="num">3.2%</span>
+        <span class="num">42 MB</span>
+        <span class="badge badge-grey">Unknown</span>
+        <span class="badge badge-orange"><span class="dot dot-orange"></span> Suspicious</span>
+      </div>
+      <div class="mock-row">
+        <span class="name">Discord.exe</span>
+        <span class="num">9024</span>
+        <span class="num">0.8%</span>
+        <span class="num">128 MB</span>
+        <span class="badge" style="color: #bc8cff;">Communication</span>
+        <span class="badge badge-blue"><span class="dot dot-blue"></span> Known</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ---------- features ---------- -->
+<section id="features">
+  <div class="wrap">
+    <h2>Built for people who don't speak Task Manager.</h2>
+    <p class="dim" style="margin-bottom: 36px; max-width: 720px;">
+      Most process viewers are written by power users for power users. WhatsRunning explains things instead of assuming you already know.
+    </p>
+    <div class="features">
+      <div class="feature">
+        <div class="feature-icon">🔍</div>
+        <h3>Tells you what everything is</h3>
+        <p>Every process gets a plain-English description from a curated database of common Windows software, plus its publisher, install path, and parent process.</p>
+      </div>
+      <div class="feature">
+        <div class="feature-icon">⚠</div>
+        <h3>Flags the suspicious</h3>
+        <p>Uses Windows' own signature verification plus heuristics like path mismatches, sketchy install locations, and known malware command patterns. Each flag explains why.</p>
+      </div>
+      <div class="feature">
+        <div class="feature-icon">⚡</div>
+        <h3>Only when you ask</h3>
+        <p>Nothing runs in the background. Nothing phones home. Click Scan, look at the results, close the app — that's the whole interaction.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ---------- comparison ---------- -->
+<section id="compare">
+  <div class="wrap">
+    <h2>How is it different from what you already have?</h2>
+    <p class="dim" style="margin-bottom: 36px; max-width: 720px;">
+      WhatsRunning isn't trying to replace your antivirus. It fills a different gap.
+    </p>
+    <div class="compare">
+      <div class="compare-row">
+        <h3>vs. Windows Defender</h3>
+        <p class="verdict">Defender catches <em>known malware</em> from its signature database. It says nothing about the dozens of legitimate-looking processes you don't recognise. WhatsRunning explains what they all are.</p>
+      </div>
+      <div class="compare-row">
+        <h3>vs. Process Explorer</h3>
+        <p class="verdict">Process Explorer is powerful — and intimidating. Forty columns of acronyms, no descriptions, no risk indicators. WhatsRunning is for the people Process Explorer terrifies.</p>
+      </div>
+      <div class="compare-row">
+        <h3>vs. searching each process name on Google</h3>
+        <p class="verdict">Faster, doesn't require 200 browser tabs, and the answers come from a curated source instead of a hundred "what is svchost.exe?" SEO articles.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ---------- download ---------- -->
+<section id="download" class="final">
+  <div class="wrap">
+    <h2>Download WhatsRunning</h2>
+    <p>Free for Windows 10 and Windows 11. About 50 MB, single-file, no installer required.</p>
+    <a href="#" class="btn btn-large">⬇ WhatsRunning.exe (v1.0.0)</a>
+    <p class="dim" style="margin-top: 18px; font-size: 13px;">
+      <!-- Replace with real SHA256 once you publish the build. -->
+      SHA-256: <code style="font-family: monospace; color: var(--text-faint);">replace-with-real-hash-once-published</code>
+    </p>
+  </div>
+</section>
+
+<!-- ---------- faq ---------- -->
+<section id="faq">
+  <div class="wrap">
+    <h2>Questions worth answering up front.</h2>
+    <div class="faq">
+      <details>
+        <summary>Does WhatsRunning phone home or upload anything?</summary>
+        <p>The scan itself runs entirely on your machine. No telemetry, no analytics, no background network calls of any kind. The only times the app touches the internet are when <em>you</em> click a specific button:</p>
+        <ul style="color: var(--text-dim); margin: 8px 0 0; padding-left: 22px;">
+          <li><b>Search online</b> opens Google in your browser.</li>
+          <li><b>Check on VirusTotal</b> opens VirusTotal pointed at the file's SHA-256 hash. The file itself is never uploaded.</li>
+          <li><b>Support development</b> opens the Ko-fi page.</li>
+          <li><b>Check for updates</b> makes a single request to GitHub's public Releases API to compare your version against the latest. No personal data is sent.</li>
+        </ul>
+        <p>That's the entire list. You can verify by watching network traffic during a scan — there is none.</p>
+      </details>
+      <details>
+        <summary>Does it replace my antivirus?</summary>
+        <p>No, and it isn't trying to. Defender (or whatever you use) catches known malware. WhatsRunning explains the rest of what's running — the bits your antivirus doesn't comment on. Use both.</p>
+      </details>
+      <details>
+        <summary>What does "Suspicious" actually mean?</summary>
+        <p>It means one or more heuristics fired: the executable isn't signed, runs from an unusual folder, has a system-process name in the wrong path, was launched with a command line associated with malware loaders, etc. Each flag is explained in the details panel. Suspicious is not the same as malicious — it's a signal worth looking at.</p>
+      </details>
+      <details>
+        <summary>Why does my first scan take ~10 seconds?</summary>
+        <p>Verifying a few hundred signatures against Windows' catalog is the slow part. We batch it into a single PowerShell call, which is the most reliable way to verify both embedded and catalog signatures. Subsequent re-scans within the same session are faster thanks to caching.</p>
+      </details>
+      <details>
+        <summary>Will the "unknown" list shrink over time?</summary>
+        <p>Yes. The process database is small for v1 and grows with each release as more legitimate software gets added. If something useful is missing, send it to the project — the database is a Python file, contributions are easy.</p>
+      </details>
+      <details>
+        <summary>SmartScreen warned me when I ran the download. Is this a virus?</summary>
+        <p>No. SmartScreen warns about any executable without a long reputation history or a paid code-signing certificate. The build isn't signed yet (cert is ~$200/yr — coming when revenue justifies it). Until then, click "More info" → "Run anyway" if you trust the source. The SHA-256 above lets you verify the file you downloaded is genuine.</p>
+      </details>
+      <details>
+        <summary>Can I see the source / contribute?</summary>
+        <p>Yes — the project is small and readable Python. Links to the repository once it's published.</p>
+      </details>
+    </div>
+  </div>
+</section>
+
+<!-- ---------- footer ---------- -->
+<footer>
+  <div class="wrap" style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 16px;">
+    <span>© <span id="year">2026</span> Handroll. WhatsRunning is provided as-is, with no warranty.</span>
+    <span class="donate">If WhatsRunning has saved you 10 minutes of Googling, <a href="https://ko-fi.com/handroll" target="_blank" rel="noopener noreferrer">buy me a coffee ♥</a></span>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+
+</body>
+</html>
