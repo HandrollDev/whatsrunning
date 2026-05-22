@@ -74,7 +74,7 @@ from process_database import purpose_for
 # change.
 APP_NAME = "WhatsRunning"
 TAGLINE = "Task Manager, but it tells you what everything is."
-VERSION = "1.0.0"
+VERSION = "1.0.1"
 AUTHOR = "Handroll"
 COPYRIGHT_YEAR = datetime.now().year
 DONATION_URL = "https://ko-fi.com/handroll"           # 0% platform fee on one-time tips

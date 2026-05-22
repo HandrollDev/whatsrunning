@@ -81,11 +81,21 @@ def draw_shield(size: int) -> Image.Image:
     return img
 
 
+def _render_supersampled(target_size: int, supersample: int = 4) -> Image.Image:
+    """Render the shield at `target_size`, but draw it at `supersample`× that
+    resolution first and downsample with LANCZOS — gives clean anti-aliased
+    edges that Pillow's `draw.line()` and `draw.polygon()` don't produce
+    natively. Without this, lines look stair-stepped at any size."""
+    over = target_size * supersample
+    big = draw_shield(over)
+    return big.resize((target_size, target_size), Image.LANCZOS)
+
+
 def main() -> None:
     sizes = [16, 32, 48, 64, 128, 256]
-    # PIL needs each size pre-rendered for crisp small icons, then it picks
-    # the right one based on `sizes=` when saving.
-    base = draw_shield(256)
+    # 256-pixel base — used as the largest entry in the multi-resolution
+    # .ico, and PIL downsamples it for the smaller sizes too.
+    base = _render_supersampled(256, supersample=4)
     base.save(
         "whatsrunning.ico",
         format="ICO",
@@ -93,10 +103,13 @@ def main() -> None:
     )
     print(f"Wrote whatsrunning.ico with sizes {sizes}")
 
-    # Also write a PNG version — used by the README and social-media preview
-    # cards, where .ico rendering is unreliable.
-    base.save("whatsrunning-logo.png", format="PNG")
-    print("Wrote whatsrunning-logo.png (256x256)")
+    # PNG at 1024×1024 for the README header, Open Graph / Twitter cards,
+    # and any other web context where the icon gets shown larger than 96px.
+    # Rendering at 1024 (with 4× supersample under the hood = 4096) means
+    # social platforms that downsample to ~600px get a crisp result.
+    png = _render_supersampled(1024, supersample=4)
+    png.save("whatsrunning-logo.png", format="PNG")
+    print("Wrote whatsrunning-logo.png (1024x1024, anti-aliased)")
 
 
 if __name__ == "__main__":

@@ -1097,6 +1097,15 @@ PROCESS_DB = {
         "trust": "common",
     },
 
+    # ---------- WhatsRunning itself ----------
+    "whatsrunning.exe": {
+        "category": "Utility",
+        "publisher": "Handroll",
+        "description": "WhatsRunning itself — the process inspector you're running right now. Several copies are normal: PyInstaller wraps a single .exe into a bootloader + extractor + the actual app, so you'll see two or three instances. Unsigned (no code-signing certificate yet), so SmartScreen warns on first launch. Safe to close — closes the app.",
+        "expected_paths": [],   # users can put the .exe wherever; any location is fine
+        "trust": "trusted",
+    },
+
     # ---------- AI / IDE tools ----------
     "codex.exe": {
         "category": "Developer",

@@ -101,6 +101,10 @@ The most useful contribution is **adding entries to `process_database.py`** for 
 
 PRs welcome.
 
+## Related projects
+
+- [**WhatsRunning for Android**](https://github.com/mirfatif/WhatsRunning) by [@mirfatif](https://github.com/mirfatif) — a separate project sharing the same name. It's a process monitor for Android devices (requires root or ADB). Different platform, different scope. If you're on Android, check it out.
+
 ## License
 
 [MIT](LICENSE). Use it, fork it, build on it — just keep the copyright notice.

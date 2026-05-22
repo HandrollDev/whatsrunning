@@ -6,6 +6,21 @@
 <title>WhatsRunning — Task Manager, in plain English</title>
 <meta name="description" content="A Windows process inspector that tells you what every process on your PC is and whether it should be there. Plain language, no background scanning.">
 <link rel="icon" type="image/png" href="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'><path d='M32 4 L60 14 L60 36 C60 53 47 60 32 62 C17 60 4 53 4 36 L4 14 Z' fill='%232f81f7'/><path d='M20 33 L29 42 L46 25' stroke='white' stroke-width='6' fill='none' stroke-linecap='round' stroke-linejoin='round'/></svg>">
+
+<!-- Open Graph (Facebook, LinkedIn, Discord, Slack, iMessage link previews) -->
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="WhatsRunning">
+<meta property="og:title" content="WhatsRunning — Task Manager, in plain English">
+<meta property="og:description" content="A free Windows process inspector that explains what every process on your PC is, who made it, and whether it should be running. No telemetry, no background scanning.">
+<meta property="og:url" content="https://whatsrunning.app">
+<meta property="og:image" content="https://whatsrunning.app/whatsrunning-logo.png">
+<meta property="og:image:alt" content="WhatsRunning shield logo">
+
+<!-- Twitter / X cards -->
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="WhatsRunning — Task Manager, in plain English">
+<meta name="twitter:description" content="A free Windows process inspector that explains every process on your PC. Open source, no telemetry.">
+<meta name="twitter:image" content="https://whatsrunning.app/whatsrunning-logo.png">
 <style>
   /* ---- design tokens (mirrors the app) ---- */
   :root {
@@ -239,6 +254,7 @@
       <a href="#features" class="hide-sm">Features</a>
       <a href="#compare" class="hide-sm">How it differs</a>
       <a href="#faq" class="hide-sm">FAQ</a>
+      <a href="https://github.com/HandrollDev/whatsrunning" class="hide-sm" target="_blank" rel="noopener noreferrer">Source</a>
       <a href="#download" class="btn btn-secondary" style="padding: 7px 14px; font-size: 13px;">Download</a>
     </div>
   </div>
@@ -256,6 +272,7 @@
       <div class="hero-cta">
         <a href="#download" class="btn btn-large">⬇ Download for Windows</a>
         <a href="#features" class="btn btn-secondary btn-large">See how it works</a>
+        <a href="https://github.com/HandrollDev/whatsrunning" class="btn btn-secondary btn-large" target="_blank" rel="noopener noreferrer">View on GitHub</a>
       </div>
       <div class="hero-meta">Free • Windows 10/11 • No installation phone-home • No background processes</div>
     </div>
@@ -380,10 +397,9 @@
   <div class="wrap">
     <h2>Download WhatsRunning</h2>
     <p>Free for Windows 10 and Windows 11. About 50 MB, single-file, no installer required.</p>
-    <a href="#" class="btn btn-large">⬇ WhatsRunning.exe (v1.0.0)</a>
+    <a href="https://github.com/HandrollDev/whatsrunning/releases/download/v1.0.0/WhatsRunning.exe" class="btn btn-large">⬇ WhatsRunning.exe (v1.0.0)</a>
     <p class="dim" style="margin-top: 18px; font-size: 13px;">
-      <!-- Replace with real SHA256 once you publish the build. -->
-      SHA-256: <code style="font-family: monospace; color: var(--text-faint);">replace-with-real-hash-once-published</code>
+      SHA-256: <code style="font-family: monospace; color: var(--text-faint); word-break: break-all;">a5265c558e125e6cccafad07af5200909b03c03397693c9467c2fac943f6ca06</code>
     </p>
   </div>
 </section>
@@ -426,7 +442,7 @@
       </details>
       <details>
         <summary>Can I see the source / contribute?</summary>
-        <p>Yes — the project is small and readable Python. Links to the repository once it's published.</p>
+        <p>Yes — the project is small and readable Python. The source is available on <a href="https://github.com/HandrollDev/whatsrunning" target="_blank" rel="noopener noreferrer">GitHub</a>.</p>
       </details>
     </div>
   </div>

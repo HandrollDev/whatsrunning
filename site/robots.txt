@@ -1,0 +1,6 @@
+# WhatsRunning — robots.txt
+# All crawlers welcome. There's nothing private here; the whole site is
+# meant to be discoverable.
+
+User-agent: *
+Allow: /

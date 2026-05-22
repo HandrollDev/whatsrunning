@@ -166,6 +166,10 @@ KNOWN_DEV_PARENTS = {
     "go.exe", "cargo.exe", "rustc.exe",
     "docker.exe", "dockerd.exe", "podman.exe",
     "windowsterminal.exe",
+    # WhatsRunning itself spawns PowerShell with -EncodedCommand for the
+    # signature-verification batch. Without this, the scanner flags its own
+    # PowerShell child as Suspicious every scan.
+    "whatsrunning.exe",
 }
 
 
