@@ -14,7 +14,12 @@ a = Analysis(
     ["whatsrunning.py"],
     pathex=[],
     binaries=[],
-    datas=[],
+    datas=[
+        # The curated process database lives outside the .py source as of v1.0.2.
+        # Bundled here as a read-only default; users can override by replacing
+        # %APPDATA%\WhatsRunning\process_data.json via Help -> Update database.
+        ("process_data.json", "."),
+    ],
     # psutil and pywin32 use lazy / platform-specific imports that PyInstaller's
     # static analysis sometimes misses. List them explicitly to be safe.
     hiddenimports=[

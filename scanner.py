@@ -17,13 +17,8 @@ from typing import Any
 
 import psutil
 
-from process_database import (
-    PROCESS_DB,
-    SUSPICIOUS_CMDLINE_FRAGMENTS,
-    SUSPICIOUS_PATH_FRAGMENTS,
-    SYSTEM_PROCESS_NAMES,
-    lookup,
-)
+import process_database
+from process_database import lookup
 
 try:
     import win32api  # type: ignore
@@ -154,23 +149,10 @@ RISK_LABELS = {
 }
 
 
-# Dev tools and AI coding agents commonly spawn PowerShell with encoded
-# commands as part of normal operation (running build steps, hooks, the agent's
-# own tool calls). When the parent is one of these, treat -EncodedCommand as
-# expected rather than as a malware indicator.
-KNOWN_DEV_PARENTS = {
-    "codex.exe", "claude.exe", "claude-code.exe", "cursor.exe",
-    "code.exe", "devenv.exe", "msbuild.exe",
-    "node.exe", "npm.exe", "yarn.exe", "pnpm.exe",
-    "python.exe", "pythonw.exe", "py.exe",
-    "go.exe", "cargo.exe", "rustc.exe",
-    "docker.exe", "dockerd.exe", "podman.exe",
-    "windowsterminal.exe",
-    # WhatsRunning itself spawns PowerShell with -EncodedCommand for the
-    # signature-verification batch. Without this, the scanner flags its own
-    # PowerShell child as Suspicious every scan.
-    "whatsrunning.exe",
-}
+# KNOWN_DEV_PARENTS now lives in process_data.json (loaded by process_database).
+# Same for PROCESS_DB, SUSPICIOUS_PATH_FRAGMENTS, SUSPICIOUS_CMDLINE_FRAGMENTS,
+# SYSTEM_PROCESS_NAMES. Access them via `process_database.X` so updates to the
+# external JSON take effect after reload() without restarting the process.
 
 
 def _shannon_entropy(s: str) -> float:
@@ -199,7 +181,7 @@ def _path_in_suspicious_folder(path: str) -> str | None:
     if not path:
         return None
     p = path.lower().replace("/", "\\")
-    for frag in SUSPICIOUS_PATH_FRAGMENTS:
+    for frag in process_database.SUSPICIOUS_PATH_FRAGMENTS:
         if frag in p:
             return frag
     return None
@@ -210,7 +192,7 @@ def _cmdline_suspicious(cmdline: str) -> list[str]:
     if not cmdline:
         return []
     cl = cmdline.lower()
-    return [f.strip() for f in SUSPICIOUS_CMDLINE_FRAGMENTS if f in cl]
+    return [f.strip() for f in process_database.SUSPICIOUS_CMDLINE_FRAGMENTS if f in cl]
 
 
 def _get_version_info(path: str) -> dict[str, str]:
@@ -280,7 +262,7 @@ def assess(proc_data: dict[str, Any]) -> dict[str, Any]:
     risk = RISK_UNKNOWN
 
     # System-name impersonation — strongest signal we have.
-    if name in SYSTEM_PROCESS_NAMES and exe:
+    if name in process_database.SYSTEM_PROCESS_NAMES and exe:
         expected = (db_entry or {}).get("expected_paths") or []
         if expected and not _path_matches_expected(exe, expected):
             indicators.append(
@@ -301,7 +283,7 @@ def assess(proc_data: dict[str, Any]) -> dict[str, Any]:
     # would flag its own host process.
     cmd_hits = _cmdline_suspicious(cmdline)
     if cmd_hits:
-        if parent_name in KNOWN_DEV_PARENTS:
+        if parent_name in process_database.KNOWN_DEV_PARENTS:
             positives.append(
                 f"Uses '{cmd_hits[0]}', but launched by {parent_name} — common for dev tools."
             )

@@ -397,9 +397,9 @@
   <div class="wrap">
     <h2>Download WhatsRunning</h2>
     <p>Free for Windows 10 and Windows 11. About 50 MB, single-file, no installer required.</p>
-    <a href="https://github.com/HandrollDev/whatsrunning/releases/download/v1.0.0/WhatsRunning.exe" class="btn btn-large">⬇ WhatsRunning.exe (v1.0.0)</a>
+    <a href="https://github.com/HandrollDev/whatsrunning/releases/download/v1.0.2/WhatsRunning.exe" class="btn btn-large">⬇ WhatsRunning.exe (v1.0.2)</a>
     <p class="dim" style="margin-top: 18px; font-size: 13px;">
-      SHA-256: <code style="font-family: monospace; color: var(--text-faint); word-break: break-all;">a5265c558e125e6cccafad07af5200909b03c03397693c9467c2fac943f6ca06</code>
+      SHA-256: <code style="font-family: monospace; color: var(--text-faint); word-break: break-all;">918fd93129a8f502e1f39f11862bbd496acbc4190d5fc7e06d2b9c1a049b4a56</code>
     </p>
   </div>
 </section>
@@ -439,6 +439,10 @@
       <details>
         <summary>SmartScreen warned me when I ran the download. Is this a virus?</summary>
         <p>No. SmartScreen warns about any executable without a long reputation history or a paid code-signing certificate. The build isn't signed yet (cert is ~$200/yr — coming when revenue justifies it). Until then, click "More info" → "Run anyway" if you trust the source. The SHA-256 above lets you verify the file you downloaded is genuine.</p>
+      </details>
+      <details>
+        <summary>Norton / AVG / Avast says it's infected with "IDP.Generic". Is this a virus?</summary>
+        <p>No, that's a well-known false positive. <strong>IDP.Generic</strong> is a generic <em>heuristic</em> detection — not a specific malware signature — that Norton/AVG/Avast (now sharing one engine after the Gen Digital merger) trigger on almost every unsigned PyInstaller-built Python app. The same detection has been raised against Discord, OBS Studio, ScreenToGif, and countless other indie tools. The full source code is at <a href="https://github.com/HandrollDev/whatsrunning">github.com/HandrollDev/whatsrunning</a> — you can audit every line yourself. The SHA-256 above lets you verify your download matches what was published. The fix from our side is submitting the binary to Norton for review and eventually paying for a code-signing certificate. The fix from your side, if you trust the source, is restoring it from quarantine and adding it to your AV's exclusion list.</p>
       </details>
       <details>
         <summary>Can I see the source / contribute?</summary>
