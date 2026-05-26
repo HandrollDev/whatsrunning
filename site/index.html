@@ -13,14 +13,16 @@
 <meta property="og:title" content="WhatsRunning — Task Manager, in plain English">
 <meta property="og:description" content="A free Windows process inspector that explains what every process on your PC is, who made it, and whether it should be running. No telemetry, no background scanning.">
 <meta property="og:url" content="https://whatsrunning.app">
-<meta property="og:image" content="https://whatsrunning.app/whatsrunning-logo.png">
-<meta property="og:image:alt" content="WhatsRunning shield logo">
+<meta property="og:image" content="https://whatsrunning.app/img/screenshot-main.png">
+<meta property="og:image:alt" content="WhatsRunning showing 277 processes with trust badges and a plain-English details panel">
+<meta property="og:image:width" content="1400">
+<meta property="og:image:height" content="850">
 
 <!-- Twitter / X cards -->
-<meta name="twitter:card" content="summary">
+<meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="WhatsRunning — Task Manager, in plain English">
 <meta name="twitter:description" content="A free Windows process inspector that explains every process on your PC. Open source, no telemetry.">
-<meta name="twitter:image" content="https://whatsrunning.app/whatsrunning-logo.png">
+<meta name="twitter:image" content="https://whatsrunning.app/img/screenshot-main.png">
 <style>
   /* ---- design tokens (mirrors the app) ---- */
   :root {
@@ -106,7 +108,38 @@
   .hero-cta { display: flex; gap: 12px; flex-wrap: wrap; }
   .hero-meta { color: var(--text-faint); font-size: 13px; margin-top: 18px; }
 
-  /* ---- mock app window (CSS art instead of a real screenshot) ---- */
+  /* ---- hero demo video ---- */
+  .hero-media {
+    background: var(--surface); border: 1px solid var(--border); border-radius: 10px;
+    overflow: hidden;
+    box-shadow:
+      0 25px 60px rgba(0,0,0,0.45),
+      0 8px 18px rgba(0,0,0,0.35);
+    line-height: 0;
+  }
+  .hero-media video,
+  .hero-media img { width: 100%; height: auto; display: block; }
+
+  /* ---- screenshots gallery ---- */
+  .shots { display: grid; grid-template-columns: repeat(2, 1fr); gap: 24px; }
+  .shot {
+    background: var(--surface); border: 1px solid var(--border); border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.35);
+    line-height: 0;
+  }
+  .shot img { width: 100%; height: auto; display: block; }
+  .shot-caption {
+    line-height: 1.4;
+    padding: 14px 18px;
+    background: var(--surface);
+    color: var(--text-dim);
+    font-size: 13px;
+    border-top: 1px solid var(--border);
+  }
+  .shot-caption b { color: var(--text); font-weight: 600; }
+
+  /* ---- (legacy) css-art mock — kept in case anything still references it ---- */
   .mock {
     background: var(--surface); border: 1px solid var(--border); border-radius: 10px;
     overflow: hidden;
@@ -232,6 +265,7 @@
     h2 { font-size: 26px; }
     .hero-grid { grid-template-columns: 1fr; gap: 40px; }
     .features { grid-template-columns: 1fr; }
+    .shots { grid-template-columns: 1fr; }
     .compare-row { grid-template-columns: 1fr; gap: 6px; }
     .nav-links { gap: 14px; }
     .nav-links .hide-sm { display: none; }
@@ -277,66 +311,21 @@
       <div class="hero-meta">Free • Windows 10/11 • No installation phone-home • No background processes</div>
     </div>
 
-    <!-- CSS-art mockup standing in for a screenshot -->
-    <div class="mock">
-      <div class="mock-titlebar">
-        <div class="mock-dot" style="background:#f85149"></div>
-        <div class="mock-dot" style="background:#d29922"></div>
-        <div class="mock-dot" style="background:#3fb950"></div>
-        <span class="mock-title">WhatsRunning — Windows Process Inspector</span>
-      </div>
-      <div class="mock-header">
-        <svg class="logo" viewBox="0 0 64 64">
-          <path d="M32 4 L60 14 L60 36 C60 53 47 60 32 62 C17 60 4 53 4 36 L4 14 Z" fill="#2f81f7"/>
-          <path d="M20 33 L29 42 L46 25" stroke="white" stroke-width="6" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
-        </svg>
-        <div>
-          <div class="mock-app-name">WhatsRunning</div>
-          <div class="mock-app-sub">Windows Process Inspector</div>
-        </div>
-      </div>
-      <div class="mock-stats">
-        <div class="mock-card"><div class="k">Total</div><div class="v">274</div></div>
-        <div class="mock-card"><div class="k">Trusted</div><div class="v v-green">165</div></div>
-        <div class="mock-card"><div class="k">Unknown</div><div class="v v-grey">12</div></div>
-        <div class="mock-card"><div class="k">Suspicious</div><div class="v v-orange">3</div></div>
-      </div>
-      <div class="mock-bar">
-        <span class="scan">⟳ Scan Now</span>
-        <span class="filter">All processes</span>
-      </div>
-      <div class="mock-row">
-        <span class="name">chrome.exe</span>
-        <span class="num">8344</span>
-        <span class="num">1.4%</span>
-        <span class="num">312 MB</span>
-        <span class="badge badge-orange">Browser</span>
-        <span class="badge badge-green"><span class="dot dot-green"></span> Trusted</span>
-      </div>
-      <div class="mock-row">
-        <span class="name">svchost.exe</span>
-        <span class="num">1812</span>
-        <span class="num">0.1%</span>
-        <span class="num">14 MB</span>
-        <span class="badge badge-blue">Windows Core</span>
-        <span class="badge badge-green"><span class="dot dot-green"></span> Trusted</span>
-      </div>
-      <div class="mock-row">
-        <span class="name">unknown_helper.exe</span>
-        <span class="num">17260</span>
-        <span class="num">3.2%</span>
-        <span class="num">42 MB</span>
-        <span class="badge badge-grey">Unknown</span>
-        <span class="badge badge-orange"><span class="dot dot-orange"></span> Suspicious</span>
-      </div>
-      <div class="mock-row">
-        <span class="name">Discord.exe</span>
-        <span class="num">9024</span>
-        <span class="num">0.8%</span>
-        <span class="num">128 MB</span>
-        <span class="badge" style="color: #bc8cff;">Communication</span>
-        <span class="badge badge-blue"><span class="dot dot-blue"></span> Known</span>
-      </div>
+    <!-- Real demo video (silent, autoplays muted on loop) -->
+    <div class="hero-media">
+      <video
+        src="img/demo.mp4"
+        poster="img/demo-poster.jpg"
+        autoplay
+        muted
+        loop
+        playsinline
+        preload="metadata"
+        aria-label="60-second silent demo of WhatsRunning scanning a Windows PC and explaining each running process."
+      >
+        <!-- Fallback for browsers that won't render video -->
+        <img src="img/screenshot-main.png" alt="WhatsRunning showing 277 processes with trust badges and a plain-English details panel">
+      </video>
     </div>
   </div>
 </section>
@@ -364,6 +353,30 @@
         <h3>Only when you ask</h3>
         <p>Nothing runs in the background. Nothing phones home. Click Scan, look at the results, close the app — that's the whole interaction.</p>
       </div>
+    </div>
+  </div>
+</section>
+
+<!-- ---------- screenshots ---------- -->
+<section id="screenshots" style="padding-top: 0;">
+  <div class="wrap">
+    <h2>A closer look.</h2>
+    <p class="dim" style="margin-bottom: 36px; max-width: 720px;">
+      Two seconds in your Downloads folder, two clicks, and the picture clears up.
+    </p>
+    <div class="shots">
+      <figure class="shot" style="margin: 0;">
+        <img src="img/screenshot-filter.png" alt="WhatsRunning filtered to the four processes it can't identify, so the user can quickly investigate just the unknowns.">
+        <figcaption class="shot-caption">
+          <b>Filter to just the unknowns.</b> 277 processes is a lot. One click hides everything WhatsRunning already vouches for, so you can focus on the handful it can't.
+        </figcaption>
+      </figure>
+      <figure class="shot" style="margin: 0;">
+        <img src="img/screenshot-details.png" alt="The details panel showing crashpad_handler.exe verified as a signed Chromium crash-reporting helper, with publisher, install path, parent process, and action buttons.">
+        <figcaption class="shot-caption">
+          <b>Click any process for the whole story.</b> Publisher, signature status, install path, parent process, and a plain-English explanation of what it actually does.
+        </figcaption>
+      </figure>
     </div>
   </div>
 </section>
@@ -400,6 +413,9 @@
     <a href="https://github.com/HandrollDev/whatsrunning/releases/download/v1.0.2/WhatsRunning.exe" class="btn btn-large">⬇ WhatsRunning.exe (v1.0.2)</a>
     <p class="dim" style="margin-top: 18px; font-size: 13px;">
       SHA-256: <code style="font-family: monospace; color: var(--text-faint); word-break: break-all;">918fd93129a8f502e1f39f11862bbd496acbc4190d5fc7e06d2b9c1a049b4a56</code>
+    </p>
+    <p class="dim" style="margin-top: 10px; font-size: 13px; max-width: 580px; margin-left: auto; margin-right: auto;">
+      Some antivirus engines (notably Norton, Avast, AVG) flag unsigned indie software on first download. It's a reputation heuristic, not a malware signature — see the <a href="#faq">FAQ</a> if yours does.
     </p>
   </div>
 </section>
@@ -441,8 +457,8 @@
         <p>No. SmartScreen warns about any executable without a long reputation history or a paid code-signing certificate. The build isn't signed yet (cert is ~$200/yr — coming when revenue justifies it). Until then, click "More info" → "Run anyway" if you trust the source. The SHA-256 above lets you verify the file you downloaded is genuine.</p>
       </details>
       <details>
-        <summary>Norton / AVG / Avast says it's infected with "IDP.Generic". Is this a virus?</summary>
-        <p>No, that's a well-known false positive. <strong>IDP.Generic</strong> is a generic <em>heuristic</em> detection — not a specific malware signature — that Norton/AVG/Avast (now sharing one engine after the Gen Digital merger) trigger on almost every unsigned PyInstaller-built Python app. The same detection has been raised against Discord, OBS Studio, ScreenToGif, and countless other indie tools. The full source code is at <a href="https://github.com/HandrollDev/whatsrunning">github.com/HandrollDev/whatsrunning</a> — you can audit every line yourself. The SHA-256 above lets you verify your download matches what was published. The fix from our side is submitting the binary to Norton for review and eventually paying for a code-signing certificate. The fix from your side, if you trust the source, is restoring it from quarantine and adding it to your AV's exclusion list.</p>
+        <summary>Norton / AVG / Avast flagged it (IDP.Generic, FileRepMalware, Win64:UnwantedX-gen). Is this a virus?</summary>
+        <p>No, those are well-known false positives. <strong>IDP.Generic</strong>, <strong>FileRepMalware</strong>, and <strong>Win64:UnwantedX-gen</strong> are all generic <em>heuristic and reputation</em> detections — not specific malware signatures — that Norton/AVG/Avast (now sharing one engine since the Gen Digital merger) trigger on almost every unsigned PyInstaller-built Python app. The same detections have been raised against Discord, OBS Studio, ScreenToGif, and countless other indie tools. The full source code is at <a href="https://github.com/HandrollDev/whatsrunning">github.com/HandrollDev/whatsrunning</a> — you can audit every line yourself. The SHA-256 above lets you verify your download matches what was published. The fix from our side is submitting the binary to Norton for review and eventually paying for a code-signing certificate. The fix from your side, if you trust the source, is restoring it from quarantine and adding it to your AV's exclusion list.</p>
       </details>
       <details>
         <summary>Can I see the source / contribute?</summary>

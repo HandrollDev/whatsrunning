@@ -45,6 +45,24 @@ The released binary is a single 50 MB `.exe` — no installer, no setup.
 2. Verify the SHA-256 hash (also on the Releases page) matches what you downloaded.
 3. Double-click. SmartScreen may warn you because the binary isn't code-signed yet — click *"More info"* → *"Run anyway"*.
 
+## If your antivirus flags it
+
+Some antivirus products — most often **Norton**, **Avast**, and **AVG** — may flag `WhatsRunning.exe` as `IDP.Generic`, `FileRepMalware`, `Win64:UnwantedX-gen`, or a similar generic name. These are **reputation heuristics**, not actual malware detections. They fire because:
+
+- The binary isn't code-signed (certificates cost hundreds a year — not viable yet for a free tool).
+- It's new and hasn't accumulated download reputation in the vendor's cloud.
+- It's PyInstaller-packed, which superficially resembles some malware packing patterns.
+
+**What to do:**
+
+1. Verify the SHA-256 matches the value on the [Releases page](https://github.com/HandrollDev/whatsrunning/releases/latest) — that confirms you have the same bytes every other user has.
+2. Cross-check on [VirusTotal](https://www.virustotal.com/). If only one or two vendors flag it as something generic, it's the same false-positive class indie software hits constantly.
+3. Add the file to your antivirus's exceptions list if you want to run it.
+
+Reputation builds cumulatively on the SHA, which is why the website `.exe` is intentionally stable — code updates ship via the in-app updater so trust accumulates on a single binary rather than resetting with every release.
+
+If running unsigned software isn't acceptable to you, building from source (below) is supported.
+
 ## Privacy
 
 WhatsRunning was written with a strict no-background-phone-home rule:
